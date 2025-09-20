@@ -13,23 +13,18 @@ sEv:FireServer(sN.Value)
 local c=p.Character or p.CharacterAdded:Wait()
 local h=c:WaitForChild("HumanoidRootPart")
 repeat wait() until uD:FindFirstChild("FullyLoaded") and uD.FullyLoaded.Value==true
-local chests=workspace:WaitForChild("Chests")
-local startTime=tick()
-while #chests:GetChildren()>0 do
-for _,ch in ipairs(chests:GetChildren()) do
-if tick()-startTime>15 then
-tP:Teleport(placeId,p)
-return
-end
+local chests=workspace:WaitForChild("Chests"):GetChildren()
+for _,ch in ipairs(chests) do
 if ch:IsA("Model") and ch.PrimaryPart then
 local tC=ch.PrimaryPart.CFrame+Vector3.new(0,2,0)
 local tw=tS:Create(h,TweenInfo.new(0.2,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=tC})
-tw:Play()tw.Completed:Wait()task.wait(0.01)
+tw:Play()
+tw.Completed:Wait()
 elseif ch:IsA("BasePart") then
 local tC=ch.CFrame+Vector3.new(0,2,0)
 local tw=tS:Create(h,TweenInfo.new(0.2,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=tC})
-tw:Play()tw.Completed:Wait()task.wait(0.01)
-end
+tw:Play()
+tw.Completed:Wait()
 end
 end
 tP:Teleport(placeId,p)
