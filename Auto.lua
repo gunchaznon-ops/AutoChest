@@ -13,18 +13,18 @@ sEv:FireServer(sN.Value)
 local c=p.Character or p.CharacterAdded:Wait()
 local h=c:WaitForChild("HumanoidRootPart")
 repeat wait() until uD:FindFirstChild("FullyLoaded") and uD.FullyLoaded.Value==true
-local chests=workspace:WaitForChild("Chests"):GetChildren()
-for _,ch in ipairs(chests) do
+local chests=workspace:WaitForChild("Chests")
+while #chests:GetChildren()>0 do
+for _,ch in ipairs(chests:GetChildren()) do
 if ch:IsA("Model") and ch.PrimaryPart then
 local tC=ch.PrimaryPart.CFrame+Vector3.new(0,2,0)
-local tw=tS:Create(h,TweenInfo.new(0.2,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=tC})
-tw:Play()
-tw.Completed:Wait()
+local tw=tS:Create(h,TweenInfo.new(0.3,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=tC})
+tw:Play()tw.Completed:Wait()task.wait(0.5)
 elseif ch:IsA("BasePart") then
 local tC=ch.CFrame+Vector3.new(0,2,0)
-local tw=tS:Create(h,TweenInfo.new(0.2,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=tC})
-tw:Play()
-tw.Completed:Wait()
+local tw=tS:Create(h,TweenInfo.new(0.3,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=tC})
+tw:Play()tw.Completed:Wait()task.wait(0.5)
+end
 end
 end
 tP:Teleport(placeId,p)
@@ -71,17 +71,9 @@ openGuiButton.Text="Open"
 openGuiButton.Visible=false
 openGuiButton.Active=true
 openGuiButton.Parent=screenGui
-closeButton.MouseButton1Click:Connect(function()
-screenGui:Destroy()
-end)
-minimizeButton.MouseButton1Click:Connect(function()
-frame.Visible=false
-openGuiButton.Visible=true
-end)
-openGuiButton.MouseButton1Click:Connect(function()
-frame.Visible=true
-openGuiButton.Visible=false
-end)
+closeButton.MouseButton1Click:Connect(function()screenGui:Destroy()end)
+minimizeButton.MouseButton1Click:Connect(function()frame.Visible=false openGuiButton.Visible=true end)
+openGuiButton.MouseButton1Click:Connect(function()frame.Visible=true openGuiButton.Visible=false end)
 local function makeDraggable(gui)
 local dragging,dragInput,dragStart,startPos
 gui.InputBegan:Connect(function(input)
@@ -115,8 +107,8 @@ runButton.MouseButton1Click:Connect(function()
 local character=player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart=character:WaitForChild("HumanoidRootPart")
 local chestsFolder=workspace:WaitForChild("Chests")
-local chests=chestsFolder:GetChildren()
-for _,chest in ipairs(chests) do
+while #chestsFolder:GetChildren()>0 do
+for _,chest in ipairs(chestsFolder:GetChildren()) do
 if humanoidRootPart then
 local targetCFrame
 if chest:IsA("Model") and chest.PrimaryPart then
@@ -125,9 +117,9 @@ elseif chest:IsA("BasePart") then
 targetCFrame=chest.CFrame+Vector3.new(0,2,0)
 end
 if targetCFrame then
-local tween=TweenService:Create(humanoidRootPart,TweenInfo.new(0.2,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=targetCFrame})
-tween:Play()
-tween.Completed:Wait()
+local tween=TweenService:Create(humanoidRootPart,TweenInfo.new(0.3,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=targetCFrame})
+tween:Play()tween.Completed:Wait()task.wait(0.5)
+end
 end
 end
 end
