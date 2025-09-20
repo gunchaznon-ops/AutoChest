@@ -14,6 +14,7 @@ local c=p.Character or p.CharacterAdded:Wait()
 local h=c:WaitForChild("HumanoidRootPart")
 repeat wait() until uD:FindFirstChild("FullyLoaded") and uD.FullyLoaded.Value==true
 local chests=workspace:WaitForChild("Chests")
+local startTime=tick()
 while #chests:GetChildren()>0 do
 for _,ch in ipairs(chests:GetChildren()) do
 if ch:IsA("Model") and ch.PrimaryPart then
@@ -25,14 +26,15 @@ local tC=ch.CFrame+Vector3.new(0,2,0)
 local tw=tS:Create(h,TweenInfo.new(0.2,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=tC})
 tw:Play()tw.Completed:Wait()task.wait(0.01)
 end
+if tick()-startTime>15 then break end
 end
+if tick()-startTime>15 then break end
 end
 tP:Teleport(placeId,p)
 else
 local Players=game:GetService("Players")
 local TweenService=game:GetService("TweenService")
 local UserInputService=game:GetService("UserInputService")
-local TeleportService=game:GetService("TeleportService")
 local player=Players.LocalPlayer
 local playerGui=player:WaitForChild("PlayerGui")
 local screenGui=Instance.new("ScreenGui")
@@ -77,28 +79,9 @@ openGuiButton.MouseButton1Click:Connect(function()frame.Visible=true openGuiButt
 local function makeDraggable(gui)
 local dragging,dragInput,dragStart,startPos
 gui.InputBegan:Connect(function(input)
-if input.UserInputType==Enum.UserInputType.MouseButton1 then
-dragging=true
-dragStart=input.Position
-startPos=gui.Position
-input.Changed:Connect(function()
-if input.UserInputState==Enum.UserInputState.End then
-dragging=false
-end
-end)
-end
-end)
-gui.InputChanged:Connect(function(input)
-if input.UserInputType==Enum.UserInputType.MouseMovement then
-dragInput=input
-end
-end)
-UserInputService.InputChanged:Connect(function(input)
-if input==dragInput and dragging then
-local delta=input.Position-dragStart
-gui.Position=UDim2.new(startPos.X.Scale,startPos.X.Offset+delta.X,startPos.Y.Scale,startPos.Y.Offset+delta.Y)
-end
-end)
+if input.UserInputType==Enum.UserInputType.MouseButton1 then dragging=true dragStart=input.Position startPos=gui.Position input.Changed:Connect(function()if input.UserInputState==Enum.UserInputState.End then dragging=false end end)end end)
+gui.InputChanged:Connect(function(input)if input.UserInputType==Enum.UserInputType.MouseMovement then dragInput=input end end)
+UserInputService.InputChanged:Connect(function(input)if input==dragInput and dragging then local delta=input.Position-dragStart gui.Position=UDim2.new(startPos.X.Scale,startPos.X.Offset+delta.X,startPos.Y.Scale,startPos.Y.Offset+delta.Y)end end)
 end
 makeDraggable(frame)
 makeDraggable(openGuiButton)
@@ -111,16 +94,9 @@ while #chestsFolder:GetChildren()>0 do
 for _,chest in ipairs(chestsFolder:GetChildren()) do
 if humanoidRootPart then
 local targetCFrame
-if chest:IsA("Model") and chest.PrimaryPart then
-targetCFrame=chest.PrimaryPart.CFrame+Vector3.new(0,2,0)
-elseif chest:IsA("BasePart") then
-targetCFrame=chest.CFrame+Vector3.new(0,2,0)
-end
-if targetCFrame then
-local tween=TweenService:Create(humanoidRootPart,TweenInfo.new(0.2,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=targetCFrame})
-tween:Play()tween.Completed:Wait()task.wait(0.01)
-end
-end
+if chest:IsA("Model") and chest.PrimaryPart then targetCFrame=chest.PrimaryPart.CFrame+Vector3.new(0,2,0)
+elseif chest:IsA("BasePart") then targetCFrame=chest.CFrame+Vector3.new(0,2,0)end
+if targetCFrame then local tween=TweenService:Create(humanoidRootPart,TweenInfo.new(0.2,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=targetCFrame}) tween:Play()tween.Completed:Wait()task.wait(0.01)end
 end
 end
 end)
