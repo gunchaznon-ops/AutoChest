@@ -23,7 +23,7 @@ tw:Play()tw.Completed:Wait()task.wait(0.3)
 elseif ch:IsA("BasePart") then
 local tC=ch.CFrame+Vector3.new(0,2,0)
 local tw=tS:Create(h,TweenInfo.new(0.2,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=tC})
-tw:Play()tw.Completed:Wait()task.wait(0.3)
+tw:Play()tw.Completed:Wait()task.wait(0.1)
 end
 end
 end
@@ -118,7 +118,7 @@ targetCFrame=chest.CFrame+Vector3.new(0,2,0)
 end
 if targetCFrame then
 local tween=TweenService:Create(humanoidRootPart,TweenInfo.new(0.2,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=targetCFrame})
-tween:Play()tween.Completed:Wait()task.wait(0.3)
+tween:Play()tween.Completed:Wait()task.wait(0.1)
 end
 end
 end
