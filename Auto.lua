@@ -18,12 +18,12 @@ while #chests:GetChildren()>0 do
 for _,ch in ipairs(chests:GetChildren()) do
 if ch:IsA("Model") and ch.PrimaryPart then
 local tC=ch.PrimaryPart.CFrame+Vector3.new(0,2,0)
-local tw=tS:Create(h,TweenInfo.new(0.3,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=tC})
-tw:Play()tw.Completed:Wait()task.wait(0.5)
+local tw=tS:Create(h,TweenInfo.new(0.2,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=tC})
+tw:Play()tw.Completed:Wait()task.wait(0.3)
 elseif ch:IsA("BasePart") then
 local tC=ch.CFrame+Vector3.new(0,2,0)
-local tw=tS:Create(h,TweenInfo.new(0.3,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=tC})
-tw:Play()tw.Completed:Wait()task.wait(0.5)
+local tw=tS:Create(h,TweenInfo.new(0.2,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=tC})
+tw:Play()tw.Completed:Wait()task.wait(0.3)
 end
 end
 end
@@ -117,8 +117,8 @@ elseif chest:IsA("BasePart") then
 targetCFrame=chest.CFrame+Vector3.new(0,2,0)
 end
 if targetCFrame then
-local tween=TweenService:Create(humanoidRootPart,TweenInfo.new(0.3,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=targetCFrame})
-tween:Play()tween.Completed:Wait()task.wait(0.5)
+local tween=TweenService:Create(humanoidRootPart,TweenInfo.new(0.2,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=targetCFrame})
+tween:Play()tween.Completed:Wait()task.wait(0.3)
 end
 end
 end
