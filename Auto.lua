@@ -120,9 +120,9 @@ for _,chest in ipairs(chests) do
 if humanoidRootPart then
 local targetCFrame
 if chest:IsA("Model") and chest.PrimaryPart then
-targetCFrame=chest.PrimaryPart.CFrame+Vector3.new(0,5,0)
+targetCFrame=chest.PrimaryPart.CFrame+Vector3.new(0,2,0)
 elseif chest:IsA("BasePart") then
-targetCFrame=chest.CFrame+Vector3.new(0,5,0)
+targetCFrame=chest.CFrame+Vector3.new(0,2,0)
 end
 if targetCFrame then
 local tween=TweenService:Create(humanoidRootPart,TweenInfo.new(0.2,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=targetCFrame})
