@@ -15,22 +15,27 @@ local h=c:WaitForChild("HumanoidRootPart")
 repeat wait() until uD:FindFirstChild("FullyLoaded") and uD.FullyLoaded.Value==true
 local startTime=tick()
 while true do
-local chestsFolder=workspace:WaitForChild("Chests")
+local chestsFolder=workspace:FindFirstChild("Chests")
+if not chestsFolder then break end
 local chests=chestsFolder:GetChildren()
-if #chests==0 or tick()-startTime>15 then break end
+if #chests==0 then break end
 for _,ch in ipairs(chests) do
+pcall(function()
+local targetCFrame
 if ch:IsA("Model") and ch.PrimaryPart then
-local tC=ch.PrimaryPart.CFrame+Vector3.new(0,2,0)
-local tw=tS:Create(h,TweenInfo.new(0.3,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=tC})
-tw:Play()tw.Completed:Wait()task.wait(0.01)
+targetCFrame=ch.PrimaryPart.CFrame+Vector3.new(0,2,0)
 elseif ch:IsA("BasePart") then
-local tC=ch.CFrame+Vector3.new(0,2,0)
-local tw=tS:Create(h,TweenInfo.new(0.2,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=tC})
+targetCFrame=ch.CFrame+Vector3.new(0,2,0)
+end
+if targetCFrame then
+local tw=tS:Create(h,TweenInfo.new(0.3,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=targetCFrame})
 tw:Play()tw.Completed:Wait()task.wait(0.01)
 end
+end)
 if tick()-startTime>15 then break end
 end
-wait(0.1)
+if tick()-startTime>15 or #chests==0 then break end
+wait(0.05)
 end
 tP:Teleport(placeId,p)
 else
@@ -87,16 +92,12 @@ dragging=true
 dragStart=input.Position
 startPos=gui.Position
 input.Changed:Connect(function()
-if input.UserInputState==Enum.UserInputState.End then
-dragging=false
-end
+if input.UserInputState==Enum.UserInputState.End then dragging=false end
 end)
 end
 end)
 gui.InputChanged:Connect(function(input)
-if input.UserInputType==Enum.UserInputType.MouseMovement then
-dragInput=input
-end
+if input.UserInputType==Enum.UserInputType.MouseMovement then dragInput=input end
 end)
 UserInputService.InputChanged:Connect(function(input)
 if input==dragInput and dragging then
@@ -114,7 +115,7 @@ local humanoidRootPart=character:WaitForChild("HumanoidRootPart")
 local chestsFolder=workspace:WaitForChild("Chests")
 while #chestsFolder:GetChildren()>0 do
 for _,chest in ipairs(chestsFolder:GetChildren()) do
-if humanoidRootPart then
+pcall(function()
 local targetCFrame
 if chest:IsA("Model") and chest.PrimaryPart then
 targetCFrame=chest.PrimaryPart.CFrame+Vector3.new(0,2,0)
@@ -125,7 +126,7 @@ if targetCFrame then
 local tween=TweenService:Create(humanoidRootPart,TweenInfo.new(0.2,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=targetCFrame})
 tween:Play()tween.Completed:Wait()task.wait(0.01)
 end
-end
+end)
 end
 end
 end)
