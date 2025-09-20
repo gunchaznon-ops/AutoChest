@@ -14,6 +14,7 @@ local c=p.Character or p.CharacterAdded:Wait()
 local h=c:WaitForChild("HumanoidRootPart")
 repeat wait() until uD:FindFirstChild("FullyLoaded") and uD.FullyLoaded.Value==true
 local chests=workspace:WaitForChild("Chests")
+if #chests:GetChildren()==0 then tP:Teleport(placeId,p) return end
 local startTime=tick()
 while #chests:GetChildren()>0 do
 for _,ch in ipairs(chests:GetChildren()) do
