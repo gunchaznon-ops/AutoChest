@@ -26,6 +26,7 @@ for _,ch in ipairs(chests) do
 		tw.Completed:Wait()
 	end
 end
-if hopServer == true then
+
+if _G.hopServer then
 tP:Teleport(placeId,p)
 end
