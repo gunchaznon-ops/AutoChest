@@ -1,60 +1,15 @@
-if _G.hopServer then
-local p=game:GetService("Players").LocalPlayer
-local tS=game:GetService("TweenService")
-local tP=game:GetService("TeleportService")
-local rS=game:GetService("ReplicatedStorage")
-local sEv=rS:WaitForChild("Connections"):WaitForChild("Spawn")
-local placeId=137595477352660
-local lastTeleport=0
-repeat wait() until workspace:FindFirstChild("UserData")
-local uD=workspace.UserData:WaitForChild("User_"..p.UserId)
-repeat wait() until uD:FindFirstChild("Data")
-local sN=uD.Data:WaitForChild("SpawnNumber")
-pcall(function() sEv:FireServer(sN.Value) end)
-local c=p.Character or p.CharacterAdded:Wait()
-local h=c:WaitForChild("HumanoidRootPart")
-repeat wait() until uD:FindFirstChild("FullyLoaded") and uD.FullyLoaded.Value==true
-local startTime=tick()
-while true do
-local chestsFolder=workspace:FindFirstChild("Chests")
-if not chestsFolder then break end
-local chests=chestsFolder:GetChildren()
-if #chests==0 then break end
-for _,ch in ipairs(chests) do
-pcall(function()
-local targetCFrame
-if ch:IsA("Model") and ch.PrimaryPart then targetCFrame=ch.PrimaryPart.CFrame+Vector3.new(0,2,0)
-elseif ch:IsA("BasePart") then targetCFrame=ch.CFrame+Vector3.new(0,2,0)
-end
-if targetCFrame then
-local tw=pcall(function()
-return tS:Create(h,TweenInfo.new(0.3,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=targetCFrame})
-end)
-if tw then tw:Play() tw.Completed:Wait() task.wait(0.01) end
-end
-end)
-if tick()-startTime>15 then break end
-end
-if tick()-startTime>15 or #chests==0 then break end
-wait(0.05)
-end
-if tick()-lastTeleport>5 then
-lastTeleport=tick()
-pcall(function() tP:Teleport(placeId,p) end)
-end
-else
 local Players=game:GetService("Players")
 local TweenService=game:GetService("TweenService")
-local UserInputService=game:GetService("UserInputService")
 local TeleportService=game:GetService("TeleportService")
+local UserInputService=game:GetService("UserInputService")
 local player=Players.LocalPlayer
 local playerGui=player:WaitForChild("PlayerGui")
 local screenGui=Instance.new("ScreenGui")
 screenGui.Name="AutoChest"
 screenGui.Parent=playerGui
 local frame=Instance.new("Frame")
-frame.Size=UDim2.new(0,220,0,120)
-frame.Position=UDim2.new(0.5,-110,0.5,-60)
+frame.Size=UDim2.new(0,220,0,150)
+frame.Position=UDim2.new(0.5,-110,0.5,-75)
 frame.BackgroundColor3=Color3.fromRGB(50,150,255)
 frame.Active=true
 frame.Draggable=false
@@ -73,13 +28,19 @@ minimizeButton.Text="-"
 minimizeButton.Parent=frame
 local runButton=Instance.new("TextButton")
 runButton.Size=UDim2.new(0,100,0,40)
-runButton.Position=UDim2.new(0.5,-50,0.5,-20)
+runButton.Position=UDim2.new(0.5,-50,0.3,-20)
 runButton.BackgroundColor3=Color3.fromRGB(100,255,100)
 runButton.Text="Run"
 runButton.Parent=frame
+local hopButton=Instance.new("TextButton")
+hopButton.Size=UDim2.new(0,100,0,40)
+hopButton.Position=UDim2.new(0.5,-50,0.6,-20)
+hopButton.BackgroundColor3=Color3.fromRGB(255,150,50)
+hopButton.Text="Hop Server"
+hopButton.Parent=frame
 local openGuiButton=Instance.new("TextButton")
 openGuiButton.Size=UDim2.new(0,50,0,25)
-openGuiButton.Position=UDim2.new(0,10,0.8,0)
+openGuiButton.Position=UDim2.new(0,10,0.9,0)
 openGuiButton.BackgroundColor3=Color3.fromRGB(150,150,150)
 openGuiButton.Text="Open"
 openGuiButton.Visible=false
@@ -95,48 +56,43 @@ if input.UserInputType==Enum.UserInputType.MouseButton1 then
 dragging=true
 dragStart=input.Position
 startPos=gui.Position
-input.Changed:Connect(function()
-if input.UserInputState==Enum.UserInputState.End then dragging=false end
-end)
+input.Changed:Connect(function() if input.UserInputState==Enum.UserInputState.End then dragging=false end end)
 end
 end)
-gui.InputChanged:Connect(function(input)
-if input.UserInputType==Enum.UserInputType.MouseMovement then dragInput=input end
-end)
-UserInputService.InputChanged:Connect(function(input)
-if input==dragInput and dragging then
-local delta=input.Position-dragStart
-gui.Position=UDim2.new(startPos.X.Scale,startPos.X.Offset+delta.X,startPos.Y.Scale,startPos.Y.Offset+delta.Y)
-end
-end)
+gui.InputChanged:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseMovement then dragInput=input end end)
+UserInputService.InputChanged:Connect(function(input) if input==dragInput and dragging then local delta=input.Position-dragStart gui.Position=UDim2.new(startPos.X.Scale,startPos.X.Offset+delta.X,startPos.Y.Scale,startPos.Y.Offset+delta.Y) end end)
 end
 makeDraggable(frame)
 makeDraggable(openGuiButton)
+local runActive=false
 local placeId=137595477352660
 local lastTeleport=0
-runButton.MouseButton1Click:Connect(function()
+local function collectChests()
 local character=player.Character or player.CharacterAdded:Wait()
-local humanoidRootPart=character:WaitForChild("HumanoidRootPart")
-local chestsFolder=workspace:WaitForChild("Chests")
-while #chestsFolder:GetChildren()>0 do
+local h=character:WaitForChild("HumanoidRootPart")
+local chestsFolder=workspace:FindFirstChild("Chests")
+local startTime=tick()
+while runActive and chestsFolder and #chestsFolder:GetChildren()>0 do
 for _,chest in ipairs(chestsFolder:GetChildren()) do
 pcall(function()
 local targetCFrame
 if chest:IsA("Model") and chest.PrimaryPart then targetCFrame=chest.PrimaryPart.CFrame+Vector3.new(0,2,0)
-elseif chest:IsA("BasePart") then targetCFrame=chest.CFrame+Vector3.new(0,2,0)
-end
+elseif chest:IsA("BasePart") then targetCFrame=chest.CFrame+Vector3.new(0,2,0) end
 if targetCFrame then
-pcall(function()
-local tween=TweenService:Create(humanoidRootPart,TweenInfo.new(0.2,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=targetCFrame})
-tween:Play() tween.Completed:Wait() task.wait(0.01)
-end)
+local tw=pcall(function() return TweenService:Create(h,TweenInfo.new(0.2,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=targetCFrame}) end)
+if tw then tw:Play() tw.Completed:Wait() task.wait(0.01) end
 end
 end)
+if tick()-startTime>15 then break end
 end
-if #chestsFolder:GetChildren()==0 and tick()-lastTeleport>5 then
-lastTeleport=tick()
-pcall(function() TeleportService:Teleport(placeId,player) end)
+if #chestsFolder:GetChildren()==0 or tick()-startTime>15 then
+if tick()-lastTeleport>5 then lastTeleport=tick() pcall(function() TeleportService:Teleport(placeId,player) end) end
+end
+task.wait(0.05)
 end
 end
+runButton.MouseButton1Click:Connect(function()
+runActive=not runActive
+if runActive then runButton.Text="Stop" spawn(collectChests) else runButton.Text="Run" end
 end)
-end
+hopButton.MouseButton1Click:Connect(function() pcall(function() TeleportService:Teleport(placeId,player) end) end)
