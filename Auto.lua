@@ -8,8 +8,8 @@ local screenGui=Instance.new("ScreenGui")
 screenGui.Name="AutoChest"
 screenGui.Parent=playerGui
 local frame=Instance.new("Frame")
-frame.Size=UDim2.new(0,220,0,150)
-frame.Position=UDim2.new(0.5,-110,0.5,-75)
+frame.Size=UDim2.new(0,220,0,170)
+frame.Position=UDim2.new(0.5,-110,0.5,-85)
 frame.BackgroundColor3=Color3.fromRGB(50,150,255)
 frame.Active=true
 frame.Draggable=false
@@ -28,13 +28,13 @@ minimizeButton.Text="-"
 minimizeButton.Parent=frame
 local runButton=Instance.new("TextButton")
 runButton.Size=UDim2.new(0,100,0,40)
-runButton.Position=UDim2.new(0.5,-50,0.3,-20)
+runButton.Position=UDim2.new(0.5,-50,0.2,-20)
 runButton.BackgroundColor3=Color3.fromRGB(100,255,100)
 runButton.Text="Run"
 runButton.Parent=frame
 local hopButton=Instance.new("TextButton")
 hopButton.Size=UDim2.new(0,100,0,40)
-hopButton.Position=UDim2.new(0.5,-50,0.6,-20)
+hopButton.Position=UDim2.new(0.5,-50,0.5,-20)
 hopButton.BackgroundColor3=Color3.fromRGB(255,150,50)
 hopButton.Text="Hop Server"
 hopButton.Parent=frame
@@ -64,8 +64,8 @@ UserInputService.InputChanged:Connect(function(input) if input==dragInput and dr
 end
 makeDraggable(frame)
 makeDraggable(openGuiButton)
-local runActive=false
 local placeId=137595477352660
+local runActive=false
 local lastTeleport=0
 local function collectChests()
 local character=player.Character or player.CharacterAdded:Wait()
@@ -83,8 +83,10 @@ local targetCFrame
 if chest:IsA("Model") and chest.PrimaryPart then targetCFrame=chest.PrimaryPart.CFrame+Vector3.new(0,2,0)
 elseif chest:IsA("BasePart") then targetCFrame=chest.CFrame+Vector3.new(0,2,0) end
 if targetCFrame then
+pcall(function()
 local tw=TweenService:Create(h,TweenInfo.new(0.2,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=targetCFrame})
 tw:Play() tw.Completed:Wait() task.wait(0.01)
+end)
 end
 end)
 if tick()-startTime>15 then break end
