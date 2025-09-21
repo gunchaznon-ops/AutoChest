@@ -1,48 +1,53 @@
-_G.hopServer=true
-local Players=game:GetService("Players")
-local TweenService=game:GetService("TweenService")
-local TeleportService=game:GetService("TeleportService")
-local ReplicatedStorage=game:GetService("ReplicatedStorage")
-local UserInputService=game:GetService("UserInputService")
-local player=Players.LocalPlayer
+if _G.hopServer then
+local p=game:GetService("Players").LocalPlayer
+local tS=game:GetService("TweenService")
+local tP=game:GetService("TeleportService")
+local rS=game:GetService("ReplicatedStorage")
+local sEv=rS:WaitForChild("Connections"):WaitForChild("Spawn")
 local placeId=137595477352660
-local function AutoHop()
-repeat task.wait() until workspace:FindFirstChild("UserData")
-local uD=workspace.UserData:WaitForChild("User_"..player.UserId)
-repeat task.wait() until uD:FindFirstChild("Data")
+local lastTeleport=0
+repeat wait() until workspace:FindFirstChild("UserData")
+local uD=workspace.UserData:WaitForChild("User_"..p.UserId)
+repeat wait() until uD:FindFirstChild("Data")
 local sN=uD.Data:WaitForChild("SpawnNumber")
-local sEv=ReplicatedStorage:WaitForChild("Connections"):WaitForChild("Spawn")
-sEv:FireServer(sN.Value)
-local c=player.Character or player.CharacterAdded:Wait()
+pcall(function() sEv:FireServer(sN.Value) end)
+local c=p.Character or p.CharacterAdded:Wait()
 local h=c:WaitForChild("HumanoidRootPart")
-repeat task.wait() until uD:FindFirstChild("FullyLoaded") and uD.FullyLoaded.Value==true
+repeat wait() until uD:FindFirstChild("FullyLoaded") and uD.FullyLoaded.Value==true
 local startTime=tick()
 while true do
 local chestsFolder=workspace:FindFirstChild("Chests")
 if not chestsFolder then break end
 local chests=chestsFolder:GetChildren()
-if #chests==0 or tick()-startTime>15 then break end
+if #chests==0 then break end
 for _,ch in ipairs(chests) do
 pcall(function()
 local targetCFrame
-if ch:IsA("Model") and ch.PrimaryPart then
-targetCFrame=ch.PrimaryPart.CFrame+Vector3.new(0,2,0)
-elseif ch:IsA("BasePart") then
-targetCFrame=ch.CFrame+Vector3.new(0,2,0)
+if ch:IsA("Model") and ch.PrimaryPart then targetCFrame=ch.PrimaryPart.CFrame+Vector3.new(0,2,0)
+elseif ch:IsA("BasePart") then targetCFrame=ch.CFrame+Vector3.new(0,2,0)
 end
 if targetCFrame then
-local tw=TweenService:Create(h,TweenInfo.new(0.3,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=targetCFrame})
-tw:Play()tw.Completed:Wait()task.wait(0.01)
+local tw=pcall(function()
+return tS:Create(h,TweenInfo.new(0.3,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=targetCFrame})
+end)
+if tw then tw:Play() tw.Completed:Wait() task.wait(0.01) end
 end
 end)
 if tick()-startTime>15 then break end
 end
 if tick()-startTime>15 or #chests==0 then break end
-task.wait(0.05)
+wait(0.05)
 end
-pcall(function()task.wait(5)TeleportService:Teleport(placeId,player)end)
+if tick()-lastTeleport>5 then
+lastTeleport=tick()
+pcall(function() tP:Teleport(placeId,p) end)
 end
-local function AutoChestGUI()
+else
+local Players=game:GetService("Players")
+local TweenService=game:GetService("TweenService")
+local UserInputService=game:GetService("UserInputService")
+local TeleportService=game:GetService("TeleportService")
+local player=Players.LocalPlayer
 local playerGui=player:WaitForChild("PlayerGui")
 local screenGui=Instance.new("ScreenGui")
 screenGui.Name="AutoChest"
@@ -80,9 +85,9 @@ openGuiButton.Text="Open"
 openGuiButton.Visible=false
 openGuiButton.Active=true
 openGuiButton.Parent=screenGui
-closeButton.MouseButton1Click:Connect(function()screenGui:Destroy()end)
-minimizeButton.MouseButton1Click:Connect(function()frame.Visible=false openGuiButton.Visible=true end)
-openGuiButton.MouseButton1Click:Connect(function()frame.Visible=true openGuiButton.Visible=false end)
+closeButton.MouseButton1Click:Connect(function() pcall(function() screenGui:Destroy() end) end)
+minimizeButton.MouseButton1Click:Connect(function() frame.Visible=false openGuiButton.Visible=true end)
+openGuiButton.MouseButton1Click:Connect(function() frame.Visible=true openGuiButton.Visible=false end)
 local function makeDraggable(gui)
 local dragging,dragInput,dragStart,startPos
 gui.InputBegan:Connect(function(input)
@@ -90,14 +95,25 @@ if input.UserInputType==Enum.UserInputType.MouseButton1 then
 dragging=true
 dragStart=input.Position
 startPos=gui.Position
-input.Changed:Connect(function()if input.UserInputState==Enum.UserInputState.End then dragging=false end end)
+input.Changed:Connect(function()
+if input.UserInputState==Enum.UserInputState.End then dragging=false end
+end)
 end
 end)
-gui.InputChanged:Connect(function(input)if input.UserInputType==Enum.UserInputType.MouseMovement then dragInput=input end end)
-UserInputService.InputChanged:Connect(function(input)if input==dragInput and dragging then local delta=input.Position-dragStart gui.Position=UDim2.new(startPos.X.Scale,startPos.X.Offset+delta.X,startPos.Y.Scale,startPos.Y.Offset+delta.Y)end end)
+gui.InputChanged:Connect(function(input)
+if input.UserInputType==Enum.UserInputType.MouseMovement then dragInput=input end
+end)
+UserInputService.InputChanged:Connect(function(input)
+if input==dragInput and dragging then
+local delta=input.Position-dragStart
+gui.Position=UDim2.new(startPos.X.Scale,startPos.X.Offset+delta.X,startPos.Y.Scale,startPos.Y.Offset+delta.Y)
+end
+end)
 end
 makeDraggable(frame)
 makeDraggable(openGuiButton)
+local placeId=137595477352660
+local lastTeleport=0
 runButton.MouseButton1Click:Connect(function()
 local character=player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart=character:WaitForChild("HumanoidRootPart")
@@ -106,18 +122,21 @@ while #chestsFolder:GetChildren()>0 do
 for _,chest in ipairs(chestsFolder:GetChildren()) do
 pcall(function()
 local targetCFrame
-if chest:IsA("Model") and chest.PrimaryPart then
-targetCFrame=chest.PrimaryPart.CFrame+Vector3.new(0,2,0)
-elseif chest:IsA("BasePart") then
-targetCFrame=chest.CFrame+Vector3.new(0,2,0)
+if chest:IsA("Model") and chest.PrimaryPart then targetCFrame=chest.PrimaryPart.CFrame+Vector3.new(0,2,0)
+elseif chest:IsA("BasePart") then targetCFrame=chest.CFrame+Vector3.new(0,2,0)
 end
 if targetCFrame then
+pcall(function()
 local tween=TweenService:Create(humanoidRootPart,TweenInfo.new(0.2,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=targetCFrame})
-tween:Play()tween.Completed:Wait()task.wait(0.01)
+tween:Play() tween.Completed:Wait() task.wait(0.01)
+end)
 end
 end)
 end
+if #chestsFolder:GetChildren()==0 and tick()-lastTeleport>5 then
+lastTeleport=tick()
+pcall(function() TeleportService:Teleport(placeId,player) end)
+end
 end
 end)
 end
-if _G.hopServer then AutoHop()else AutoChestGUI()end
