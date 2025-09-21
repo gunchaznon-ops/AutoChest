@@ -71,9 +71,9 @@ local tw=tS:Create(h,TweenInfo.new(0.3,Enum.EasingStyle.Quad,Enum.EasingDirectio
 tw:Play()tw.Completed:Wait()task.wait(0.1)
 end
 end)
-if tick()-startTime>15 then break end
+if tick()-startTime>30 then break end
 end
-if tick()-startTime>15 or #chests==0 then break end
+if tick()-startTime>30 or #chests==0 then break end
 wait(0.05)
 end
 local Players=game:GetService("Players")
