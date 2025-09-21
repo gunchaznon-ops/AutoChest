@@ -70,25 +70,27 @@ local lastTeleport=0
 local function collectChests()
 local character=player.Character or player.CharacterAdded:Wait()
 local h=character:WaitForChild("HumanoidRootPart")
+while runActive do
 local chestsFolder=workspace:FindFirstChild("Chests")
+if not chestsFolder or #chestsFolder:GetChildren()==0 then
+if tick()-lastTeleport>5 then lastTeleport=tick() pcall(function() TeleportService:Teleport(placeId,player) end) end
+task.wait(1)
+else
 local startTime=tick()
-while runActive and chestsFolder and #chestsFolder:GetChildren()>0 do
 for _,chest in ipairs(chestsFolder:GetChildren()) do
 pcall(function()
 local targetCFrame
 if chest:IsA("Model") and chest.PrimaryPart then targetCFrame=chest.PrimaryPart.CFrame+Vector3.new(0,2,0)
 elseif chest:IsA("BasePart") then targetCFrame=chest.CFrame+Vector3.new(0,2,0) end
 if targetCFrame then
-local tw=pcall(function() return TweenService:Create(h,TweenInfo.new(0.2,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=targetCFrame}) end)
-if tw then tw:Play() tw.Completed:Wait() task.wait(0.01) end
+local tw=TweenService:Create(h,TweenInfo.new(0.2,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=targetCFrame})
+tw:Play() tw.Completed:Wait() task.wait(0.01)
 end
 end)
 if tick()-startTime>15 then break end
 end
-if #chestsFolder:GetChildren()==0 or tick()-startTime>15 then
-if tick()-lastTeleport>5 then lastTeleport=tick() pcall(function() TeleportService:Teleport(placeId,player) end) end
-end
 task.wait(0.05)
+end
 end
 end
 runButton.MouseButton1Click:Connect(function()
