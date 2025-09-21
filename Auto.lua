@@ -1,24 +1,27 @@
-if _G.hopServer then
-local p=game:GetService("Players").LocalPlayer
-local tS=game:GetService("TweenService")
-local tP=game:GetService("TeleportService")
-local rS=game:GetService("ReplicatedStorage")
-local sEv=rS:WaitForChild("Connections"):WaitForChild("Spawn")
+_G.hopServer=true
+local Players=game:GetService("Players")
+local TweenService=game:GetService("TweenService")
+local TeleportService=game:GetService("TeleportService")
+local ReplicatedStorage=game:GetService("ReplicatedStorage")
+local UserInputService=game:GetService("UserInputService")
+local player=Players.LocalPlayer
 local placeId=137595477352660
-repeat wait() until workspace:FindFirstChild("UserData")
-local uD=workspace.UserData:WaitForChild("User_"..p.UserId)
-repeat wait() until uD:FindFirstChild("Data")
+local function AutoHop()
+repeat task.wait() until workspace:FindFirstChild("UserData")
+local uD=workspace.UserData:WaitForChild("User_"..player.UserId)
+repeat task.wait() until uD:FindFirstChild("Data")
 local sN=uD.Data:WaitForChild("SpawnNumber")
+local sEv=ReplicatedStorage:WaitForChild("Connections"):WaitForChild("Spawn")
 sEv:FireServer(sN.Value)
-local c=p.Character or p.CharacterAdded:Wait()
+local c=player.Character or player.CharacterAdded:Wait()
 local h=c:WaitForChild("HumanoidRootPart")
-repeat wait() until uD:FindFirstChild("FullyLoaded") and uD.FullyLoaded.Value==true
+repeat task.wait() until uD:FindFirstChild("FullyLoaded") and uD.FullyLoaded.Value==true
 local startTime=tick()
 while true do
 local chestsFolder=workspace:FindFirstChild("Chests")
 if not chestsFolder then break end
 local chests=chestsFolder:GetChildren()
-if #chests==0 then break end
+if #chests==0 or tick()-startTime>15 then break end
 for _,ch in ipairs(chests) do
 pcall(function()
 local targetCFrame
@@ -28,22 +31,18 @@ elseif ch:IsA("BasePart") then
 targetCFrame=ch.CFrame+Vector3.new(0,2,0)
 end
 if targetCFrame then
-local tw=tS:Create(h,TweenInfo.new(0.3,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=targetCFrame})
+local tw=TweenService:Create(h,TweenInfo.new(0.3,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=targetCFrame})
 tw:Play()tw.Completed:Wait()task.wait(0.01)
 end
 end)
 if tick()-startTime>15 then break end
 end
 if tick()-startTime>15 or #chests==0 then break end
-wait(0.05)
+task.wait(0.05)
 end
-tP:Teleport(placeId,p)
-else
-local Players=game:GetService("Players")
-local TweenService=game:GetService("TweenService")
-local UserInputService=game:GetService("UserInputService")
-local TeleportService=game:GetService("TeleportService")
-local player=Players.LocalPlayer
+pcall(function()task.wait(5)TeleportService:Teleport(placeId,player)end)
+end
+local function AutoChestGUI()
 local playerGui=player:WaitForChild("PlayerGui")
 local screenGui=Instance.new("ScreenGui")
 screenGui.Name="AutoChest"
@@ -91,24 +90,14 @@ if input.UserInputType==Enum.UserInputType.MouseButton1 then
 dragging=true
 dragStart=input.Position
 startPos=gui.Position
-input.Changed:Connect(function()
-if input.UserInputState==Enum.UserInputState.End then dragging=false end
-end)
+input.Changed:Connect(function()if input.UserInputState==Enum.UserInputState.End then dragging=false end end)
 end
 end)
-gui.InputChanged:Connect(function(input)
-if input.UserInputType==Enum.UserInputType.MouseMovement then dragInput=input end
-end)
-UserInputService.InputChanged:Connect(function(input)
-if input==dragInput and dragging then
-local delta=input.Position-dragStart
-gui.Position=UDim2.new(startPos.X.Scale,startPos.X.Offset+delta.X,startPos.Y.Scale,startPos.Y.Offset+delta.Y)
-end
-end)
+gui.InputChanged:Connect(function(input)if input.UserInputType==Enum.UserInputType.MouseMovement then dragInput=input end end)
+UserInputService.InputChanged:Connect(function(input)if input==dragInput and dragging then local delta=input.Position-dragStart gui.Position=UDim2.new(startPos.X.Scale,startPos.X.Offset+delta.X,startPos.Y.Scale,startPos.Y.Offset+delta.Y)end end)
 end
 makeDraggable(frame)
 makeDraggable(openGuiButton)
-local placeId=137595477352660
 runButton.MouseButton1Click:Connect(function()
 local character=player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart=character:WaitForChild("HumanoidRootPart")
@@ -131,3 +120,4 @@ end
 end
 end)
 end
+if _G.hopServer then AutoHop()else AutoChestGUI()end
