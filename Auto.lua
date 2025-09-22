@@ -1,3 +1,4 @@
+_G.hopServer=true
 local Players=game:GetService("Players")
 local player=Players.LocalPlayer
 local playerGui=player:WaitForChild("PlayerGui")
@@ -47,21 +48,25 @@ connectChestEvents()
 
 -- ถ้าเปิดโหมด hopServer
 if _G.hopServer then
-    local p=game:GetService("Players").LocalPlayer
     local tS=game:GetService("TweenService")
     local tP=game:GetService("TeleportService")
     local rS=game:GetService("ReplicatedStorage")
+    local HttpService=game:GetService("HttpService")
     local sEv=rS:WaitForChild("Connections"):WaitForChild("Spawn")
     local placeId=137595477352660
+
     repeat wait() until workspace:FindFirstChild("UserData")
-    local uD=workspace.UserData:WaitForChild("User_"..p.UserId)
+    local uD=workspace.UserData:WaitForChild("User_"..player.UserId)
     repeat wait() until uD:FindFirstChild("Data")
     local sN=uD.Data:WaitForChild("SpawnNumber")
     sEv:FireServer(sN.Value)
-    local c=p.Character or p.CharacterAdded:Wait()
+
+    local c=player.Character or player.CharacterAdded:Wait()
     local h=c:WaitForChild("HumanoidRootPart")
+
     repeat wait() until uD:FindFirstChild("FullyLoaded") and uD.FullyLoaded.Value==true
     local startTime=tick()
+
     while true do
         local chestsFolder=workspace:FindFirstChild("Chests")
         if not chestsFolder then break end
@@ -77,7 +82,9 @@ if _G.hopServer then
                 end
                 if targetCFrame then
                     local tw=tS:Create(h,TweenInfo.new(0.3,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{CFrame=targetCFrame})
-                    tw:Play()tw.Completed:Wait()task.wait(0.1)
+                    tw:Play()
+                    tw.Completed:Wait()
+                    task.wait(0.1)
                 end
             end)
             if tick()-startTime>30 then break end
@@ -112,7 +119,28 @@ if _G.hopServer then
         countdownLabel.Text=tostring(i)
         task.wait(1)
     end
-    tP:Teleport(placeId,p)
+
+    -- Hop ไปเซิร์ฟใหม่แทนที่จะเข้าซ้ำ
+    local servers={}
+    local success, result = pcall(function()
+        return game:HttpGet("https://games.roblox.com/v1/games/"..placeId.."/servers/Public?sortOrder=Asc&limit=100")
+    end)
+
+    if success and result then
+        local data=HttpService:JSONDecode(result)
+        for _,v in pairs(data.data) do
+            if v.playing < v.maxPlayers and v.id ~= game.JobId then
+                table.insert(servers,v.id)
+            end
+        end
+    end
+
+    if #servers>0 then
+        local randomServer=servers[math.random(1,#servers)]
+        tP:TeleportToPlaceInstance(placeId,randomServer,player)
+    else
+        warn("ไม่เจอเซิร์ฟใหม่ ลองใหม่อีกที")
+    end
 
 else
     local Players=game:GetService("Players")
