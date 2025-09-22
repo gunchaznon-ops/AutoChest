@@ -1,4 +1,4 @@
-task.wait(8)
+task.wait(25)
 local Players=game:GetService("Players")
 local player=Players.LocalPlayer
 local playerGui=player:WaitForChild("PlayerGui")
